@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="cards-list">
+                <h1>Learning Products</h1>
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    {% for product in products %}
+                        <div class="card" style="width: 18rem;">
+                            <img src="{{ product.image.url }}" class="card-img-top" alt="image"/>
+                            <div class="card-body">
+                                <h3 class="card-title">{{ product.title }}</h3>
+                                <p class="card-text">{{ product.description }}</p>
+                                <a href="{% url 'products_details' id=product.id %}" class="card-link">Details</a>
+                                <a href="{% url 'add_to_cart' id=product.id %}" class="card-link">Add to Cart</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

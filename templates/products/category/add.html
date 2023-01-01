@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <h1 class="text-center">Add Category</h1>
+            <form method="POST" {% if category %} action="{% url 'update_category' id=category.id %}" {% else %}
+                  action="{% url 'add_category' %}"> {% endif %}
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title</label>
+                    <input type="title" class="form-control" {% if category %} value="{{ category.title }}" {% endif %}
+                           name="title" id="title" aria-describedby="title">
+                </div>
+                <div class="mb3">
+                    <label for="products" class="form-label">Add Product</label>
+                    <select class="form-select" name="products" multiple aria-label="multiple select example">
+                        {% for product in products %}
+                            <option value="{{ product.id }}"
+                                    {% if product_categories %}
+                                        {% for p_c in product_categories %}
+                                            {% if p_c.product.id == product.id %}
+                                    selected
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}>
+                                {{ product.title }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
