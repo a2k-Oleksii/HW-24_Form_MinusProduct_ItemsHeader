@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import PermissionDenied
 from .models import Product, Category, CategoryProduct
-from .forms import ProductForm
+from .forms import ProductForm, UpdateProductsForm
 
 
 def add_product(request):
@@ -25,7 +25,7 @@ def add_product(request):
                 update_product(request, product.id)
                 return redirect('/')
             else:
-                return render(request, 'products/add.html', {"form": form})
+                return render(request, 'products/add.html', {'form': form})
     else:
         return redirect('/')
 
@@ -50,36 +50,42 @@ def edit_product(request, id):
 
 
 def update_product(request, id):
-    if request.method == "GET":
-        # is_staff = request.user.is_staff()
-        # is_superuser = request.user.is_superuser()
-        # is_owner = request.user.id()
-        form = ProductForm()
-        if form.is_valid(request.user.is_superuser, request.user.is_superuser(), request.user.id()):
+    form_update = UpdateProductsForm(request.POST)
+    if form_update.is_valid(is_superuser=request.user.is_superuser,
+                            is_staff=request.user.is_staff,
+                            owner=request.user,
+                            id=id
+                            ):
+        if request.method == "GET":
             product = Product.objects.get(id=id)
             categories = Category.objects.all()
             product_categories = CategoryProduct.objects.filter(product_id=product.id)
+            form = ProductForm()
             return render(request, 'products/add.html', {
                 'product': product,
                 'product_categories': product_categories,
                 'categories': categories,
-                # 'form': form
+                'form': form,
             })
+        else:
+            form = ProductForm(request.POST)
+            if form.is_valid():
+                if request.user.is_authenticated:
+                    product = Product.objects.get(id=id)
+                    product.title = request.POST.get("title")
+                    product.description = request.POST.get("description")
+                    product.save()
+                    CategoryProduct.objects.filter(product_id=product.id).delete()
+                    for category in request.POST.getlist('categories', []):
+                        category_product = CategoryProduct()
+                        category_product.product = product
+                        category_product.category = Category.objects.get(id=int(category))
+                        category_product.save()
+                    return redirect("/")
+            else:
+                return render(request, 'products/add.html')
     else:
-        # form = ProductForm(request.POST)
-        # if form.is_valid():
-            if request.user.is_authenticated:
-                product = Product.objects.get(id=id)
-                product.title = request.POST.get("title")
-                product.description = request.POST.get("description")
-                product.save()
-                CategoryProduct.objects.filter(product_id=product.id).delete()
-                for category in request.POST.getlist('categories', []):
-                    category_product = CategoryProduct()
-                    category_product.product = product
-                    category_product.category = Category.objects.get(id=int(category))
-                    category_product.save()
-                return redirect("/")
+        return redirect("/")
 
 
 def update_category(request, id):
@@ -114,7 +120,6 @@ def add_category(request):
             category = Category()
             category.title = request.POST.get("title")
             category.save()
-
             update_category(request, category.id)
             return redirect('/')
     else:

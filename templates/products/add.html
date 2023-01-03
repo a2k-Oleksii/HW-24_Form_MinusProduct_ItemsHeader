@@ -23,18 +23,14 @@
                         <div class="form-text text-danger">{{ form.description.errors }}</div>
                     {% endif %}
                 </div>
-
-
                 <div class="mb-3">
                     <label for="price" class="sr-only">Price</label>
                     <input type="price" class="form-control mb-2 mr-sm-2" {% if product %} value="{{ product.price }}" {% endif %}
                            name="price" id="price" aria-describedby="price">
-                    {% if form.title.errors %}
-                        <div class="form-text text-danger">{{ form.title.errors }}</div>
+                    {% if form.price.errors %}
+                        <div class="form-text text-danger">{{ form.price.errors }}</div>
                     {% endif %}
                 </div>
-
-
                 <div class="mb-3">
                     <label for="categories" class="form-label">Categories</label>
                     <select class="form-select" name="categories" multiple aria-label="multiple select example">
