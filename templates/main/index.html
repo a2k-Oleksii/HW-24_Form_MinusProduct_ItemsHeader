@@ -9,10 +9,31 @@
                         <div class="card" style="width: 18rem;">
                             <img src="{{ product.image.url }}" class="card-img-top" alt="image"/>
                             <div class="card-body">
-                                <h3 class="card-title">{{ product.title }}</h3>
+                                <h3 class="card-title">{{ product.title }}
+                                    <div class="btn-group">
+                                        <button class="btn btn-secondary dropdown-toggle" type="button"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                            Menu Item
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item"
+                                                   href="{% url 'products_details' id=product.id %}">
+                                                Details</a></li>
+                                            <li><a class="dropdown-item"
+                                                   href="{% url 'add_to_cart' id=product.id %}">
+                                                Add to Cart</a></li>
+                                            {% if request.user.is_authenticated %}
+                                                <li><a class="dropdown-item"
+                                                       href="{% url 'update_product' id=product.id %}">
+                                                    Update Product</a></li>
+                                                <li><a class="dropdown-item"
+                                                       href="{% url 'delete_product' id=product.id %}">
+                                                    Delete Product</a></li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </h3>
                                 <p class="card-text">{{ product.description }}</p>
-                                <a href="{% url 'products_details' id=product.id %}" class="card-link">Details</a>
-                                <a href="{% url 'add_to_cart' id=product.id %}" class="card-link">Add to Cart</a>
                             </div>
                         </div>
                     {% endfor %}

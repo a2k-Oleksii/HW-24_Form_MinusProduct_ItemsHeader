@@ -17,7 +17,7 @@ class ProductForm(forms.ModelForm):
         fields = ["title", "description", "price"]
 
 
-class UpdateProductsForm(forms.Form):
+class ValidateForm(forms.Form):
     def is_valid(self, is_superuser, is_staff, owner, id):
         if Product.objects.get(id=id).user == owner:
             return True

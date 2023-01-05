@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import PermissionDenied
 from .models import Product, Category, CategoryProduct
-from .forms import ProductForm, UpdateProductsForm
+from .forms import ProductForm, ValidateForm
 
 
 def add_product(request):
@@ -50,8 +50,8 @@ def edit_product(request, id):
 
 
 def update_product(request, id):
-    form_update = UpdateProductsForm(request.POST)
-    if form_update.is_valid(is_superuser=request.user.is_superuser,
+    form_validate = ValidateForm(request.POST)
+    if form_validate.is_valid(is_superuser=request.user.is_superuser,
                             is_staff=request.user.is_staff,
                             owner=request.user,
                             id=id
@@ -74,6 +74,7 @@ def update_product(request, id):
                     product = Product.objects.get(id=id)
                     product.title = request.POST.get("title")
                     product.description = request.POST.get("description")
+                    product.price = request.POST.get("price")
                     product.save()
                     CategoryProduct.objects.filter(product_id=product.id).delete()
                     for category in request.POST.getlist('categories', []):
@@ -83,7 +84,22 @@ def update_product(request, id):
                         category_product.save()
                     return redirect("/")
             else:
-                return render(request, 'products/add.html')
+                return render(request, 'products/add.html', {'form': form_validate})
+    else:
+        return redirect("/")
+
+
+def delete_product(request, id):
+    form_validate = ValidateForm(request)
+    if form_validate.is_valid(is_superuser=request.user.is_superuser,
+                              is_staff=request.user.is_staff,
+                              owner=request.user,
+                              id=id
+                              ):
+        product = Product.objects.get(id=id)
+        CategoryProduct.objects.filter(product_id=product.id).delete()
+        Product.objects.filter(id=id).delete()
+        return redirect("/")
     else:
         return redirect("/")
 
