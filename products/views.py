@@ -51,11 +51,7 @@ def edit_product(request, id):
 
 def update_product(request, id):
     form_validate = ValidateForm(request.POST)
-    if form_validate.is_valid(is_superuser=request.user.is_superuser,
-                            is_staff=request.user.is_staff,
-                            owner=request.user,
-                            id=id
-                            ):
+    if form_validate.is_valid(user=request.user, id=id):
         if request.method == "GET":
             product = Product.objects.get(id=id)
             categories = Category.objects.all()
@@ -91,11 +87,7 @@ def update_product(request, id):
 
 def delete_product(request, id):
     form_validate = ValidateForm(request)
-    if form_validate.is_valid(is_superuser=request.user.is_superuser,
-                              is_staff=request.user.is_staff,
-                              owner=request.user,
-                              id=id
-                              ):
+    if form_validate.is_valid(user=request.user, id=id):
         product = Product.objects.get(id=id)
         CategoryProduct.objects.filter(product_id=product.id).delete()
         Product.objects.filter(id=id).delete()

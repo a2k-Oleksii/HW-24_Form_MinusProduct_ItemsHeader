@@ -1,5 +1,6 @@
 from django import forms
 from .models import Product
+from django.contrib.auth.models import User
 
 
 class ProductForm(forms.ModelForm):
@@ -18,11 +19,12 @@ class ProductForm(forms.ModelForm):
 
 
 class ValidateForm(forms.Form):
-    def is_valid(self, is_superuser, is_staff, owner, id):
-        if Product.objects.get(id=id).user == owner:
+
+    def is_valid(self, user, id):
+        if Product.objects.get(id=id).user == user:
             return True
-        elif is_staff:
-            return is_staff
+        elif user.is_staff:
+            return user.is_staff
         else:
-            return is_superuser
+            return user.is_superuser
         return False
